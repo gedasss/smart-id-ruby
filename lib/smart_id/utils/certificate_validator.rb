@@ -23,8 +23,18 @@ module SmartId::Utils
       # cert_store.add_dir(File.dirname(__FILE__)+"/../../../trusted_certs/")
       # cert_store.purpose = OpenSSL::X509::PURPOSE_ANY
       # OpenSSL::X509::Store.new.verify(@certificate) && 
-      @certificate.not_before.to_date < Date.today && 
-        @certificate.not_after.to_date > Date.today
+      today = Date.today
+        is_valid = (@certificate.not_before.to_date < today) && (@certificate.not_after.to_date > today)
+
+        unless is_valid
+          puts <<~ERROR
+            Certificate appears not valid (today: #{today}, 
+            not_before: #{@certificate.not_before} #{@certificate.not_before.to_date}, 
+            not_after: #{@certificate.not_after} #{@certificate.not_after.to_date})
+          ERROR
+        end
+
+      is_valid
     end
 
     def validate_certificate!
